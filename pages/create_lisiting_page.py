@@ -1,3 +1,4 @@
+import allure
 from selenium.webdriver.common.by import By
 from pages.base_page import BasePage
 from pages.home_page import HomePage
@@ -12,11 +13,13 @@ class Locator:
     CITY_DROPDOWN_BTN = (By.XPATH, "//input[@name='city']/..//button")
     PUBLISH_BTN = (By.XPATH, "//button[@type='submit']")
 
+
 class CreateListingPage(BasePage):
     def __init__(self, driver):
         super().__init__(driver)
         self.locators = Locator()
 
+    @allure.step("Создать объявление")
     def create_adw(self, name, category, city, description, price):
         self._send_keys(*self.locators.NAME_FIELD, name)
         self._click_element(*self.locators.CATEGORY_DROPDOWN_BTN)

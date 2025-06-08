@@ -1,6 +1,7 @@
 import random
 from typing import List
 
+import allure
 from selenium.common import NoSuchElementException
 from selenium.webdriver import ActionChains, Keys
 from selenium.webdriver.remote.webelement import WebElement
@@ -17,9 +18,11 @@ class BasePage:
         self._driver: ChromiumDriver = driver
         self.wait = WebDriverWait(self._driver, 10)
 
-    def _open_url(self, endpoint=''):
+    @allure.step("Открыть страницу {endpoint}")
+    def _open_url(self, endpoint = ''):
         self._driver.get(self.BASE_URL + endpoint)
 
+    @allure.step("Проскролить страницу на x: {x} y: {y}")
     def _scroll(self, x: int = 0, y: int = 0):
         return self._driver.execute_script(f"window.scroll({x}, {y})")
 
@@ -29,20 +32,25 @@ class BasePage:
     def _find_elements(self, by: str, locator: str) -> List[WebElement]:
         return self.wait.until(EC.visibility_of_any_elements_located((by, locator)))
 
+    @allure.step("Кликнуть по элементу {locator}")
     def _click_element(self, by, locator):
         self.wait.until(EC.element_to_be_clickable((by, locator))).click()
 
+    @allure.step("заполнить поле {locator}")
     def _send_keys(self, by, locator, text):
         self._find_element(by, locator).clear()
         self._find_element(by, locator).send_keys(text)
 
+    @allure.step("Переключить вкладку")
     def switch_tab(self):
         windows = self._driver.window_handles
         self._driver.switch_to.window(windows[-1])
 
+    @allure.step("Проверить что url содержит {url}")
     def assert_url_have(self, url):
         self.wait.until(EC.url_contains(url))
 
+    @allure.step("Выбрать элемент выпадающего списка с названием {name}")
     def select_dropdown_item(self, element, name):
         items = self._find_elements(*element)
         for item in items:

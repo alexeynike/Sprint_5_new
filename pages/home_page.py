@@ -1,3 +1,4 @@
+import allure
 from selenium.webdriver.common.by import By
 from pages.base_page import BasePage
 
@@ -11,24 +12,28 @@ class HomePageLocators:
     PASSWORD_FIELD = (By.XPATH, "//input[@name='password']")
     SUBMIT_PASSWORD_FIELD = (By.XPATH, "//input[@name='submitPassword']")
     CREATE_ACCOUNT_BTN = (By.XPATH, "//button[text()='Создать аккаунт']")
-    ERROR_MESSAGE = (By.XPATH, "//span[text()='Ошибка']")
     USER_LOGO_ICON = (By.XPATH, "//button[@class='circleSmall']")
     USER_EXIT_BTN = (By.XPATH, "//div[@class='columnSmall']/button")
     USER_NAME = (By.XPATH, "//h3[@class='profileText name']")
     LOGIN_BTN = (By.XPATH, "//button[text()='Войти']")
     ADW_BLOCK = (By.XPATH, "//div[@class='card']")
+    ERROR_MESSAGE = (By.XPATH, "//span[text()='Ошибка']")
+
 
 class HomePage(BasePage):
     def __init__(self, driver):
         super().__init__(driver)
         self.locators = HomePageLocators()
 
+    @allure.step("Открыть главную")
     def open_home_page(self):
         self._open_url()
 
+    @allure.step("Кликнуть по кнопке решистрация")
     def click_on_login_and_register_btn(self):
         self._click_element(*self.locators.LOGIN_AND_REGISTER_BTN)
 
+    @allure.step("Заполнить форму регистрации")
     def register_user(self, email, password):
         self._click_element(*self.locators.NO_ACCOUNT_BTN)
         self._send_keys(*self.locators.EMAIL_FIELD, email)
@@ -36,37 +41,43 @@ class HomePage(BasePage):
         self._send_keys(*self.locators.SUBMIT_PASSWORD_FIELD, password)
         self._click_element(*self.locators.CREATE_ACCOUNT_BTN)
 
+    @allure.step("Войти в систему")
     def login_user(self, email, password):
         self._send_keys(*self.locators.EMAIL_FIELD, email)
         self._send_keys(*self.locators.PASSWORD_FIELD, password)
         self._click_element(*self.locators.LOGIN_BTN)
 
-
+    @allure.step("Проверка что пользователь зарегистрирован")
     def assert_user_is_registered(self):
         self._find_element(*self.locators.USER_LOGO_ICON).is_displayed()
         assert self._find_element(*self.locators.USER_NAME).text == "User."
 
-    def assert_user_is_not_registered(self):
-        self._find_element(*self.locators.ERROR_MESSAGE).is_displayed()
-
+    @allure.step("Выйти из системы")
     def logout_user(self):
         self._click_element(*self.locators.USER_EXIT_BTN)
 
+    @allure.step("Проверить что пользователь вышел")
     def assert_user_is_log_out(self):
         assert self._find_element(*self.locators.LOGIN_AND_REGISTER_BTN).is_displayed()
 
+    @allure.step("Кликнуть по создать объявление")
     def click_on_adw_btn(self):
-        from pages.create_lisiting_page import CreateListingPage
         self._click_element(*self.locators.PLACE_ADW_BTN)
-        return CreateListingPage(self.driver)
+        return self
 
+    @allure.step("Кликнуть по профайл логотипу")
     def click_on_profile_logo(self):
-        from pages.profile_page import ProfilePage
         self._click_element(*self.locators.USER_LOGO_ICON)
-        return ProfilePage(self.driver)
+        return self
 
+    @allure.step("Проверка что форма входа отображается")
     def assert_login_modal_is_displayed(self):
         assert self._find_element(*self.locators.LOGIN_FORM).text == "Чтобы разместить объявление, авторизуйтесь"
 
+    @allure.step("Проверка что пользователь находится на главной")
     def assert_is_home_page(self):
         self._find_element(*self.locators.ADW_BLOCK).is_displayed()
+
+    @allure.step("Проверка что юзер не зарегистрирован")
+    def assert_user_is_not_registered(self):
+        self._find_element(*self.locators.ERROR_MESSAGE).is_displayed()
